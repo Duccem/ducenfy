@@ -16,7 +16,13 @@
                         </thead>
                         <tbody>
                             <tr v-for="track in tracks" :key="track._id" :id="track._id">
-                                <td ><a href="#" @click="selectTrack(track._id,$event)"><i ref="hola" class="fas fa-play" id="playIcon"></i></a></td>
+                                <td >
+                                    <a href="#" @click="selectTrack(track._id)">
+                                        <i v-if="track._id != currentTrack._id"  class="fas fa-play" id="playIcon"></i>
+                                        <i v-else-if="!isPlaying"  class="fas fa-play activo" id="playIcon"></i>
+                                        <i v-else  class="fas fa-pause activo" id="playIcon"></i>
+                                    </a>
+                                </td>
                                 <td >{{ track.title }}</td>
                                 <td >{{ track.artist }}</td>
                                 <td >{{ track.album }}</td>
@@ -33,19 +39,10 @@
 
 <script>
 import EventBus from '../bus'
+import { mapState, mapActions } from 'vuex';
+import service from  '../services';
 export default {
     name:'List',
-    data:()=>{
-        return{
-            tracks:[],
-            id:'',
-            playit:'',
-            activo:null,
-            pos:0,
-            trs:null,
-            repeat:0
-        }
-    },
     filters:{
         formatTime(str){
             let length = parseFloat(str);
@@ -58,109 +55,19 @@ export default {
             return time;
         }
     },
-    mounted(){
-        fetch('http://localhost:3000/track/')
-            .then(response => response.json())
-            .then((data)=>{
-                this.tracks = data.tracks;
-                
-            })
-            .catch(err=> console.log(err));
-        EventBus.$on('paused',(element)=>{
-            this.togglePlay(element)
-        });
-        EventBus.$on('skip',(id)=>{
-            this.skip(id);
-        });
-        EventBus.$on('back',(id)=>{
-            this.back(id);
-        });
-        EventBus.$on('toggle-repeat',(repeat)=>{
-            this.repeat = repeat;
-        })
+    computed:mapState('tracks',['tracks','listTracks','currentTrack','isPlaying', 'repeat']),
+    async mounted(){
+        let tracks = await service.tracks.listTrack();
+        this.setTracks(tracks);
     },
     methods:{
-        togglePlay(playit){
-            if(playit){
-                this.activo.classList.remove('fa-pause');
-                this.activo.classList.add('fa-play');
-            }else{
-                this.activo.classList.remove('fa-play');
-                this.activo.classList.add('fa-pause');
+        ...mapActions('tracks',['setTracks']),
+        selectTrack(id){
+            if(id!=this.currentTrack._id){
+                EventBus.$emit('load-song',id);   
             }
-        },
-        emitTrack(id,playIcon){
-
-            if(id!=this.id && this.activo !==null){
-                this.activo.classList.remove('fa-play');
-                this.activo.classList.remove('fa-pause');
-                this.activo.classList.remove('activo');
-                this.activo.classList.add('fa-play');
-            }
-
-            if(playIcon.classList[1] == 'fa-pause'){
-                playIcon.classList.remove('fa-pause');
-                playIcon.classList.add('fa-play');
-            }else{
-                playIcon.classList.remove('fa-play');
-                playIcon.classList.add('fa-pause');
-                playIcon.classList.add('activo');
-                
-                this.activo = playIcon;
-            }
-            
-            this.id = id;
-            EventBus.$emit('toggle-play',id);
-        },
-        selectTrack(id,event){
-            let playIcon = event.target;
-            this.emitTrack(id,playIcon);
-        },
-        skip(id){
-            this.trs = this.$el.querySelectorAll('tbody tr');
-            
-            let pos = 0;
-            this.tracks.forEach((element,index)=>{
-                if(element._id == id){
-                    pos = index;
-                }
-            });
-            if(this.repeat != 2){
-                if(this.repeat == 0){
-                    if(pos < this.tracks.length -1){
-                        pos +=1;
-                    }
-                }else{
-                    if(pos < this.tracks.length -1){
-                        pos +=1;
-                    }else{
-                        pos =0;
-                    }
-                }   
-            }
-            let _id = this.tracks[pos]._id;
-            let tr = this.trs[pos].childNodes[0].childNodes[0].childNodes[0];
-            this.emitTrack(_id,tr);
-        },
-        back(id){
-            this.trs = this.$el.querySelectorAll('tbody tr');
-            
-            let pos = 0;
-            this.tracks.forEach((element,index)=>{
-                if(element._id == id){
-                    pos = index;
-                }
-            });
-
-            if(pos > 0){
-                pos -=1;
-            }
-
-            let _id = this.tracks[pos]._id;
-            let tr = this.trs[pos].childNodes[0].childNodes[0].childNodes[0];
-            this.emitTrack(_id,tr);
+            EventBus.$emit('toggle-play');
         }
-
     }
 }
 </script>

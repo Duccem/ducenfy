@@ -19,7 +19,6 @@ const state = {
 };
 
 const getters = {
-
 };
 
 const mutations = {
@@ -31,11 +30,18 @@ const mutations = {
     },
     SET_VOLUME(state,volume){
         state.volume = volume;
+    },
+    SET_TRACKS(state,tracks){
+        state.tracks = tracks;
+    },
+    SET_REPEAT(state,repeat){
+        state.repeat = repeat;
     }
 };
 
 const actions = {
-    setCurrentTrack({commit},track){
+    setTrack({commit, state},id){
+        let track = state.tracks.find(track => track._id == id);
         commit('SET_CURRENT_TRACK',track);
     },
     setIsPlaying({commit},isPlaying){
@@ -43,7 +49,38 @@ const actions = {
     },
     setVolume({commit},volume){
         commit('SET_VOLUME',volume);
+    },
+    setTracks({commit},tracks){
+        commit('SET_TRACKS',tracks);
+    },
+    setRepeat({commit},repeat){
+        commit('SET_REPEAT',repeat);
+    },
+    skip({commit, state}){
+        let index = state.tracks.findIndex(track => state.currentTrack._id == track._id);
+        if(state.repeat == 2) return;
+        if(index == state.tracks.length - 1){
+            if(state.repeat == 1){
+                index = 0;
+            }
+        }else{
+            index++;
+        }
+        commit('SET_CURRENT_TRACK',state.tracks[index]);
+    },
+    back({commit, state}){
+        let index = state.tracks.findIndex(track => state.currentTrack._id == track._id);
+        if(state.repeat == 2) return;
+        if(index == 0){
+            if(state.repeat == 1){
+                index = state.tracks.length - 1;
+            }
+        }else{
+            index--;
+        }
+        commit('SET_CURRENT_TRACK',state.tracks[index]);
     }
+
 };
 
 export default {

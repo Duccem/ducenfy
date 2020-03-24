@@ -14,7 +14,10 @@
         </div>
         <div class="col md-6">
             <div class="row justify-content-center ">
-                <a href="#" class="mx-4"><i class="fas fa-random"></i></a>
+                <a href="#" class="mx-4" @click="setRandom(!isRandom)">
+                    <i v-if="!isRandom" class="fas fa-random"></i>
+                    <i v-else class="fas fa-random activo"></i>
+                </a>
                 <a href="#" class="mx-4" @click="backWard()"><i class="fas fa-step-backward"></i></a>
                 <a href="#" class="mx-4" @click="togglePlay(track._id)"  >
                     <i v-if="isPlaying" class="fas fa-pause" id="playIcon"></i>
@@ -105,7 +108,7 @@ export default {
             this.togglePlay();
             this.togglePlay();
         },
-        ...mapActions('tracks',['setTrack','setIsPlaying','setVolume','setRepeat','skip','back'])
+        ...mapActions('tracks',['setTrack','setIsPlaying','setVolume','setRepeat','skip','back','setRandom'])
     },
     computed:{
         totalDuration() {
@@ -131,7 +134,8 @@ export default {
             track:'currentTrack',
             isPlaying: 'isPlaying',
             volume: 'volume',
-            repeat: 'repeat'
+            repeat: 'repeat',
+            isRandom: 'isRandom'
         })
 
     }

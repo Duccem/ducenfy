@@ -111,13 +111,11 @@ const actions = {
             let newTrackArray = state.tracks.map(track => track);
             newTrackArray.sort(()=> Math.random() - 0.5);
             let index = newTrackArray.findIndex(track => state.currentTrack._id == track._id);
-            console.log(newTrackArray,index);
             if(index != -1){
               let track =  newTrackArray.splice(index,1);
               newTrackArray.splice(0,0,track[0]);
             }
             commit('SET_RANDOM_TRACKS',newTrackArray);
-            console.log(newTrackArray,index);
         }
         commit('SET_IS_RANDOM',isRandom);
     }

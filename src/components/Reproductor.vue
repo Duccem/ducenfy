@@ -1,7 +1,7 @@
 <template>
     <div id="reproductor" class="row align-items-center">
         <audio id="player" @timeupdate="progressbar()" @ended="forWard()" >
-            <source id="audioSource" :src="'http://localhost:3000/track/play/'+track.song"  type="audio/mp3">
+            <source id="audioSource" :src="'/track/play/'+track.song"  type="audio/mp3">
         </audio>
         <div class="col-md-3">
             <div class="row">

@@ -5,7 +5,7 @@ const state = {
         _id:'',
         title:'Unknow',
         duration:0,
-        photo:'http://localhost:3000/images/default-song-image.jpg',
+        photo:'/images/default-song-image.jpg',
         song:'',
         album:'Unknow',
         artist:'Unknow'
